@@ -1,6 +1,6 @@
 import Player from './player.js';
 import Background from './background.js';
-import {Owl, Dingo} from './enemy.js';
+import {Ship, Grunt, Spider} from './enemy.js';
 import Laser from './laser.js';
 import {Kangaroo, Clouds} from './shadow.js';
 import InputHandler from './input.js';
@@ -11,12 +11,11 @@ window.addEventListener('load', function(){
     const loading = document.getElementById('loading');
     loading.style.display = 'none';
 
-
-
     const canvas = document.getElementById('canvas1');
     const ctx = canvas.getContext('2d');
     canvas.width = 1400;
     canvas.height = 720;
+    let bg_layers = [];
     let enemies = [];
     let shadows = [];
     let lasers = [];
@@ -24,17 +23,14 @@ window.addEventListener('load', function(){
     let dice = 0;
     const fullscreenButton = document.getElementById('fullscreenButton');
 
-    const enemyTypes = [
-        new Owl(canvas.width, canvas.height),
-        new Dingo(canvas.width, canvas.height),
-      ];
 
     function handleEnemies(deltaTime){
         if (enemyTimer > enemyInterval + randomEnemyInterval) {
 
-            dice = Math.floor(Math.random() * 3);
-            if ((dice == 0) || (dice == 1)) enemies.push(new Owl(canvas.width, canvas.height));
-            if ((dice == 2) || (dice == 3)) enemies.push(new Dingo(canvas.width, canvas.height));
+            dice = Math.floor(Math.random() * 5);
+            if ((dice == 0) || (dice == 1)) enemies.push(new Grunt(canvas.width, canvas.height));
+            if ((dice == 2) || (dice == 3)) enemies.push(new Spider(canvas.width, canvas.height));
+            if ((dice == 4) || (dice == 5)) enemies.push(new Ship(canvas.width, canvas.height));
 
             console.log("enemies: " + enemies.length);
             enemyTimer = 0;
@@ -93,12 +89,18 @@ window.addEventListener('load', function(){
 
     const player = new Player(canvas.width, canvas.height);
     const laser = new Laser(canvas.width, canvas.height);
-    const background = new Background(canvas.width, canvas.height);
-    const input = new InputHandler(player, background, enemies, score);
+    const background0 = new Background(document.getElementById("backgroundImage0"), 2, canvas.width, canvas.height);
+    const background1 = new Background(document.getElementById("backgroundImage1"), 4, canvas.width, canvas.height);
+    const background2 = new Background(document.getElementById("backgroundImage2"), 8, canvas.width, canvas.height);
+    const background3 = new Background(document.getElementById("backgroundImage3"), 10, canvas.width, canvas.height);
+    const background4 = new Background(document.getElementById("backgroundImage4"), 14, canvas.width, canvas.height);
+    const background5 = new Background(document.getElementById("backgroundImage5"), 20, canvas.width, canvas.height);
+
+    const input = new InputHandler(player, background0, enemies, score);
     
     let lastTime = 0;
     let enemyTimer = 0;
-    let enemyInterval = 2000;
+    let enemyInterval = 1000;
     let randomEnemyInterval = Math.floor(Math.random() * 2000);
     let shadowTimer = 0;
     let shadowInterval = 4000;
@@ -111,24 +113,34 @@ window.addEventListener('load', function(){
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
-        background.draw(ctx);
+        background0.draw(ctx);
+        background1.draw(ctx);
+        background2.draw(ctx);
+        background3.draw(ctx);
+        background4.draw(ctx);
+        background5.draw(ctx);
         
-        //if((player.currentState.state == 'RUNNING') || (player.currentState.state == 'ROLLING')) {
-            background.update(input.input);
-        //}
+        if((player.currentState.state !== 'STANDING') && (player.currentState.state !== 'RUNNING_LEFT')) {
+            background0.update();
+            background1.update();
+            background2.update();
+            background3.update();
+            background4.update();
+            background5.update();
+        }
 
         if((player.currentState.state == 'ZAPPING')) {
             handleLasers(player.x, player.y, enemies);
         }
 
-        handleShadows(deltaTime);
-        //displayStatusText(ctx, input.input + ' ' + player.currentState.state + ' Distance:' + background.distance);
-        displayStatusText(ctx, 'Score: ' + score);
+        //handleShadows(deltaTime);
+        displayStatusText(ctx, input.input + ' ' + player.currentState.state + ' Distance:' + background0.distance);
+        //displayStatusText(ctx, 'Score: ' + score);
 
-        player.draw(ctx, deltaTime);
-        player.update(input.input, canvas, enemies);
+        //player.draw(ctx, deltaTime);
+        //player.update(input.input, canvas, enemies);
         
-        //handleEnemies(deltaTime);
+        handleEnemies(deltaTime);
 
         
         if(!player.ded)requestAnimationFrame(animate);

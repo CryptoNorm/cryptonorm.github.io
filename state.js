@@ -7,6 +7,7 @@ export const states = {
     FALLING: 5,
     RUNNING_LEFT: 6,
     DED: 7,
+    AIRHOPPING: 8,
 }
 
 class State {
@@ -30,18 +31,18 @@ export class Standing extends State {
         this.player.maxFrame = 5;
     };
     handleInput(input){
-        if (input === 'PRESS right'){
+        if (input.keys.indexOf('PRESS right') > -1){
             this.player.vx = this.player.speed;
             this.player.setState(states.RUNNING); // running
-        } else if (input === 'PRESS left'){
+        } else if (input.keys.indexOf('PRESS left') > -1){
             this.player.setState(states.RUNNING_LEFT); // running
-        } else if (input === 'PRESS up'){
+        } else if (input.keys.indexOf('PRESS up') > -1){
             if (this.player.onGround()){
                 this.player.setState(states.JUMPING); // jumping
             }
-        } else if (input === 'PRESS down'){
+        } else if (input.keys.indexOf('PRESS down') > -1){
             this.player.setState(states.ROLLING); // rolling
-        } else if (input === 'PRESS attack'){
+        } else if (input.keys.indexOf('PRESS attack') > -1){
             this.player.setState(states.ZAPPING); // zapping
         }
         
@@ -63,26 +64,25 @@ export class Running extends State {
         this.player.maxFrame = 7;
     };
     handleInput(input){
-        if (input === 'PRESS right'){
-            this.player.vx = this.player.speed;
-            this.player.setState(states.RUNNING); // running
-        } else if (input === 'RELEASE right'){
+        if (input.keys.indexOf('PRESS up') > -1){
+            this.player.setState(states.AIRHOPPING);
+        } else if (input.keys.indexOf('RELEASE right') > -1){
             if (this.player.vx > 0 && this.player.onGround()){
                 this.player.setState(states.STANDING); // standing
             }
-        } else if (input === 'PRESS left'){
+        } else if (input.keys.indexOf('PRESS left') > -1){
             this.player.setState(states.RUNNING_LEFT); // running
-        } else if (input === 'RELEASE left'){
+        } else if (input.keys.indexOf('RELEASE left') > -1){
             if (this.player.vx < 0 && this.player.onGround()){
                 this.player.setState(states.STANDING); // standing
             }
-        } else if (input === 'PRESS up'){
+        } else if (input.keys.indexOf('PRESS up') > -1){
             if (this.player.onGround()){
                 this.player.setState(states.JUMPING); // jumping
             }
-        } else if (input === 'PRESS down'){
+        } else if (input.keys.indexOf('PRESS down') > -1){
             this.player.setState(states.ROLLING); // rolling
-        } else if (input === 'PRESS attack'){
+        } else if (input.keys.indexOf('PRESS attack') > -1){
             this.player.setState(states.ZAPPING); // zapping
         }
     }
@@ -99,26 +99,26 @@ export class RunningLeft extends State {
         this.player.maxFrame = 7;
     };
     handleInput(input){
-        if (input === 'PRESS left'){
+        if (input.keys.indexOf('PRESS left') > -1){
             this.player.vx = -this.player.speed;
             this.player.setState(states.RUNNING_LEFT); // running
-        } else if (input === 'PRESS right'){
+        } else if (input.keys.indexOf('PRESS right') > -1){
             this.player.setState(states.RUNNING);
-        } else if (input === 'RELEASE right'){
+        } else if (input.keys.indexOf('RELEASE right') > -1){
             if (this.player.vx > 0 && this.player.onGround()){
                 this.player.setState(states.STANDING); // standing
             }
-        } else if (input === 'RELEASE left'){
+        } else if (input.keys.indexOf('RELEASE left') > -1){
             if (this.player.vx < 0 && this.player.onGround()){
                 this.player.setState(states.STANDING); // standing
             }
-        } else if (input === 'PRESS up'){
+        } else if (input.keys.indexOf('PRESS up') > -1){
             if (this.player.onGround()){
                 this.player.setState(states.JUMPING); // jumping
             }
-        } else if (input === 'PRESS down'){
+        } else if (input.keys.indexOf('PRESS down') > -1){
             this.player.setState(states.ROLLING); // rolling
-        } else if (input === 'PRESS attack'){
+        } else if (input.keys.indexOf('PRESS attack') > -1){
             this.player.setState(states.ZAPPING); // zapping
         }
     }
@@ -142,17 +142,17 @@ export class Jumping extends State {
         this.handleJumpEvent();
     };
     handleInput(input){
-        if (input === 'PRESS right'){
+        if (input.keys.indexOf('PRESS right') > -1){
             this.player.vx = this.player.speed;
-            this.player.setState(states.RUNNING); // running
-        } else if (input === 'PRESS left'){
+//            this.player.setState(states.RUNNING); // running
+        } else if (input.keys.indexOf('PRESS left') > -1){
             this.player.vx = -this.player.speed;
             this.player.setState(states.RUNNING); // running
-        } else if (input === 'PRESS attack'){
+        } else if (input.keys.indexOf('PRESS attack') > -1){
             this.player.setState(states.ZAPPING); // zapping
-        } else if (input === 'RELEASE attack'){
-            this.player.setState(states.JUMPING);
-        } else if (input === 'RELEASE right'){
+        } else if (input.keys.indexOf('RELEASE attack') > -1){
+            this.player.setState(states.FALLING);
+        } else if (input.keys.indexOf('RELEASE right') > -1){
             this.player.vx = this.player.speed;
             this.player.setState(states.STANDING); // running
         } 
@@ -166,6 +166,43 @@ export class Jumping extends State {
     }
 }
 
+export class AirHopping extends State {
+    constructor(player){
+        super('AIRHOPPING');
+        this.player = player;
+    }
+    enter(){
+        this.player.vy = -25;
+        this.player.y -= 1;
+        this.player.spriteCol = 0;
+        this.player.spriteRow = 2;
+        this.player.maxFrame = 0;
+        this.handleJumpEvent();
+    };
+    handleInput(input){        
+        if (input.keys.indexOf('PRESS right') > -1){
+            this.player.vx = this.player.speed;
+            this.player.setState(states.RUNNING); // running
+        } else if (input.keys.indexOf('PRESS left') > -1){
+            this.player.vx = -this.player.speed;
+            this.player.setState(states.RUNNING); // running
+        } else if (input.keys.indexOf('PRESS attack') > -1){
+            this.player.setState(states.ZAPPING); // zapping
+        } else if (input.keys.indexOf('RELEASE attack') > -1){
+            this.player.setState(states.FALLING);
+        } else if (input.keys.indexOf('RELEASE right') > -1){
+            this.player.vx = this.player.speed;
+            this.player.setState(states.STANDING); // running
+        } 
+    }
+    handleJumpEvent(){  
+        if (this.player.vy < this.player.gravity) {
+            requestAnimationFrame(this.handleJumpEvent.bind(this));
+        } else {
+            this.player.setState(states.FALLING); // Falling
+        }
+    }
+}
 
 ////////////////////////////////////////////////////////
 // ROLLING STATE ///////////////////////////////////////
@@ -183,9 +220,9 @@ export class Rolling extends State {
         this.player.maxFrame = 4;
     };
     handleInput(input){
-        if (input === 'PRESS up'){
+        if (input.keys.indexOf('PRESS up') > -1){
             this.player.setState(states.JUMPING); // jumping
-        } else if (input === 'RELEASE down'){
+        } else if (input.keys.indexOf('RELEASE down') > -1){
             this.player.setState(states.STANDING); // standing
         }
     }
@@ -207,9 +244,11 @@ export class Falling extends State {
         this.handleFalling();
     };
     handleInput(input){
-        if (input === 'PRESS down'){
+        if (input.keys.indexOf('PRESS right') > -1){
+            this.player.vx = this.player.speed;
+        } else if (input.keys.indexOf('PRESS down') > -1){
            console.log('trying to dive');
-        } else if (input === 'PRESS attack'){
+        } else if (input.keys.indexOf('PRESS attack') > -1){
             this.player.setState(states.ZAPPING); // zapping
         }
     }
@@ -237,19 +276,19 @@ export class Zapping extends State {
         this.player.maxFrame = 0;
     };
     handleInput(input){
-        if (input === 'PRESS right'){
+        if (input.keys.indexOf('PRESS right') > -1){
             this.player.vx = this.player.speed;
             this.player.setState(states.RUNNING); // running
-        } else if (input === 'PRESS left'){
+        } else if (input.keys.indexOf('PRESS left') > -1){
             this.player.vx = -this.player.speed;
             this.player.setState(states.RUNNING); // running
-        } else if (input === 'PRESS up'){
+        } else if (input.keys.indexOf('PRESS up') > -1){
             if (this.player.onGround()){
                 this.player.setState(states.JUMPING); // jumping
             }
-        } else if (input === 'PRESS down'){
+        } else if (input.keys.indexOf('PRESS down') > -1){
             this.player.setState(states.ROLLING); // rolling
-        } else if (input === 'RELEASE attack'){
+        } else if (input.keys.indexOf('RELEASE attack') > -1){
             this.player.setState(states.STANDING); // zapping
         }
         
@@ -268,7 +307,7 @@ export class Ded extends State {
         this.handleFalling();
     };
     handleInput(input){
-        if (input === 'PRESS attack'){
+        if (input.keys.indexOf('PRESS attack') > -1){
            console.log('Start Over');
         }
     }
@@ -276,7 +315,7 @@ export class Ded extends State {
         if (!this.player.onGround()){
             requestAnimationFrame(this.handleFalling.bind(this));
         } else {
-            this.player.setState(states.STANDING); // standing
+            this.player.setState(states.DED); // standing
         }
     }
 }

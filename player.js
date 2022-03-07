@@ -1,4 +1,4 @@
-import { Standing, Running, Jumping, Rolling, Zapping, Falling, RunningLeft, Ded } from "./state.js";
+import { Standing, Running, Jumping, Rolling, Zapping, Falling, RunningLeft, Ded, AirHopping } from "./state.js";
 
 export default class Player {
   constructor(gameWidth, gameHeight) {
@@ -11,6 +11,7 @@ export default class Player {
       new Falling(this),
       new RunningLeft(this),
       new Ded(this),
+      new AirHopping(this,)
     ];
     this.currentState = this.states[0];
 
@@ -55,8 +56,8 @@ export default class Player {
 
     // boundaries
     if (this.x < 0) this.x = 0;
-    else if (this.x > canvas.width/1.5 - this.width)
-      this.x = canvas.width/1.5 - this.width;
+    else if (this.x > canvas.width/1.75 - this.width)
+        this.x = canvas.width/1.75 - this.width;
     if (this.y > canvas.height - this.height)
       this.y = canvas.height - this.height;
 
@@ -80,8 +81,13 @@ export default class Player {
         const dy = (enemy.y + enemy.height /2 + 10) - (this.y + this.height/2 + 25);
         const distance = Math.sqrt(dx * dx + dy * dy);
         if (distance < enemy.width/3 + this.width/5) {
-            if(this.currentState == "ROLLING") enemy.ded;
-            else this.currentState.state = 'DED';
+            
+            if(this.currentState.state == "ROLLING") {
+              console.log("got him");
+              enemy.ded = true;
+            }
+            else 
+            this.currentState.state = 'DED';
         }
     }); 
          
